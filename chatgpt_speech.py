@@ -22,9 +22,9 @@ def get_chatgpt_response(prompt: str) -> str:
     """Get cached ChatGPT response with thread pool execution"""
     def _get_response():
         return client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a English teacher who will help me to learn english"},
+                {"role": "system", "content": "You are a English teacher who will help me to learn english, you only speak english"},
                 {"role": "user", "content": prompt}
             ]
         ).choices[0].message.content
