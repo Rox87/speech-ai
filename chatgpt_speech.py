@@ -3,60 +3,84 @@ import pygame
 import time
 import os
 import tempfile
+import hashlib
+from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 
+# InitialiProcessandoze OpenAI client
 client = OpenAI()
 
-def time_elapsed(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        end_time = time.time()
-        print(f"Time elapsed: {end_time - start_time} seconds")
-        return result
-    return wrapper
+# Initialize pygame once
+pygame.mixer.init()
 
-@time_elapsed
-def get_chatgpt_response(prompt):
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    return response.choices[0].message.content
+# Thread pool for I/O operations
+executor = ThreadPoolExecutor(max_workers=4)
 
-@time_elapsed
-def speech(text):
-        # Generate speech from text
+# Cache for ChatGPT responses (max 128 entries)
+@lru_cache(maxsize=128)
+def get_chatgpt_response(prompt: str) -> str:
+    """Get cached ChatGPT response with thread pool execution"""
+    def _get_response():
+        return client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a English teacher who will help me to learn english"},
+                {"role": "user", "content": prompt}
+            ]
+        ).choices[0].message.content
+    
+    return executor.submit(_get_response).result()
+
+def generate_audio_file(text: str) -> str:
+    """Generate audio file from text using OpenAI TTS"""
+    try:
         response = client.audio.speech.create(
             model="tts-1",
             voice="nova",
             input=text
         )
         
-        # Create temporary file
-        with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_file:
-            temp_filename = temp_file.name
-            response.stream_to_file(temp_filename)
-            
-        # Initialize pygame mixer
-        pygame.mixer.init()
-        pygame.mixer.music.load(temp_filename)
-        pygame.mixer.music.play()
+        # Create temporary file with hash-based name
+        file_hash = hashlib.md5(text.encode()).hexdigest()
+        temp_filename = f"temp/temp_{file_hash}.mp3"
         
+        # Stream to file
+        response.stream_to_file(temp_filename)
+        return temp_filename
+        
+    except Exception as e:
+        print(f"Error generating audio: {str(e)}")
+        raise
+
+def play_audio(filename: str):
+    """Play audio file using pygame with error handling"""
+    try:
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
+
         # Wait for playback to finish
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
             
+    except pygame.error as e:
+        print(f"Audio playback error: {str(e)}")
 
-def chat_and_speak(prompt):
-    # Get response from ChatGPT
-    response_text = get_chatgpt_response(prompt)
-    print(f"ChatGPT Response: {response_text}")
-    
-    # Convert response to speech
-    speech(response_text)
+
+
+def chat_and_speak(prompt: str):
+    """Main function to get ChatGPT response and speak it"""
+    try:
+        # Get response from ChatGPT
+        response_text = get_chatgpt_response(prompt)
+        print(f"ChatGPT Response: {response_text}")
+        
+        # Generate and play audio
+        audio_file = generate_audio_file(response_text)
+        play_audio(audio_file)
+        
+    except Exception as e:
+        print(f"Error in chat_and_speak: {str(e)}")
+
 
 if __name__ == "__main__":
     # Example usage

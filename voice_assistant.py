@@ -3,7 +3,9 @@ import soundfile as sf
 import tempfile
 import os
 from openai import OpenAI
-from chatgpt_speech import get_chatgpt_response, speech
+from chatgpt_speech import chat_and_speak
+from clean_folder import clean_folder
+
 
 client = OpenAI()
 
@@ -45,11 +47,10 @@ def listen_and_respond():
                 break
                 
             # Get ChatGPT response
-            response = get_chatgpt_response(user_input)
+            response = chat_and_speak(user_input)
             print(f"Assistant: {response}")
             
-            # Speak the response
-            speech(response)
+       
                 
         except KeyboardInterrupt:
             print("\nExiting voice assistant...")
@@ -62,4 +63,5 @@ def listen_and_respond():
                 os.remove(temp_filename)
 
 if __name__ == "__main__":
+    clean_folder("temp")
     listen_and_respond()
