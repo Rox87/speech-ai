@@ -42,7 +42,7 @@ def listen_and_respond():
             print(f"You said: {user_input}")
             
             # Check for exit command
-            if user_input.lower().strip() == "exit":
+            if user_input.lower().strip().__contains__("bye") and len(user_input.lower().strip()) < 7:
                 print("Exiting voice assistant...")
                 break
                 
