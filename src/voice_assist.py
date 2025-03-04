@@ -1,15 +1,12 @@
 import sounddevice as sd
 import soundfile as sf
-import tempfile
-import os
 from openai import OpenAI
 from chatgpt_speech import chat_and_speak
 from clean_folder import clean_folder
-#from transcribe_audio import openai_whisper_api
 from transcribe_audio import local_transcribe_audio
-from gtts import gTTS
 import io
 import wave
+
 client = OpenAI()
 
 def record_audio_to_bytes(duration=5, samplerate=44100, channels=1):
