@@ -25,7 +25,7 @@ def local_transcribe_audio(file_path):
     segments, _ = model.transcribe(file_path)
 
     for segment in segments:
-        print(segment.text, end=" ", flush=True)  # Stream transcription
+        #print(segment.text, end=" ", flush=True)  # Stream transcription
         yield(segment.text)
     # Salvar transcrição
     # output_path = file_path + ".txt"
@@ -35,6 +35,3 @@ def local_transcribe_audio(file_path):
     # print(f"Transcrição salva em: {output_path}")
     #return text
 
-if __name__ == "__main__":
-    #print(openai_whisper_api("demo.mp3"))
-    local_transcribe_audio("demo.mp3")
