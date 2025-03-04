@@ -37,6 +37,7 @@ def listen_and_respond():
     print("Voice assistant started. Say 'exit' to quit.")
     
     while True:
+        
   # Remove the file
         try:
             # Create temporary file for recording

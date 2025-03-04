@@ -1,21 +1,11 @@
 from faster_whisper import WhisperModel
 from openai import OpenAI
-client = OpenAI()
 
-def time_elapsed(func):
-    def wrapper(*args, **kwargs):
-        import time
-        start_time = time.time()
-        result = func(*args, **kwargs)
-        elapsed_time = time.time() - start_time
-        print(f"Elapsed time: {elapsed_time:.2f} seconds")
-        return result
-    return wrapper
+client = OpenAI()
 
 # Carregar modelo médio (balance entre velocidade e precisão)
 model = WhisperModel("tiny.en", device="cpu", compute_type="int8")
 
-@time_elapsed
 def openai_whisper_api(audio_file):
     # Transcribe the audio
     with open(audio_file, 'rb') as audio_file:
@@ -25,7 +15,6 @@ def openai_whisper_api(audio_file):
         ).text
     return user_input
 
-@time_elapsed
 def local_transcribe_audio(file_path):
 
     

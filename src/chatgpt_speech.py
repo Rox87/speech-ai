@@ -16,18 +16,18 @@ pygame.mixer.init()
 
 # Thread pool for I/O operations
 executor = ThreadPoolExecutor(max_workers=4)
-
+history = [
+        {"role": "system", "content": "You are a English teacher who will help me to learn english, you only speak english"}
+]
 # Cache for ChatGPT responses (max 128 entries)
 @lru_cache(maxsize=128)
 def get_chatgpt_response(prompt: str) -> str:
     """Get cached ChatGPT response with thread pool execution"""
     def _get_response():
+        history.append({"role": "user", "content": prompt})
         return client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a English teacher who will help me to learn english, you only speak english"},
-                {"role": "user", "content": prompt}
-            ]
+            messages=history
         ).choices[0].message.content
     
     return executor.submit(_get_response).result()
