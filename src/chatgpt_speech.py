@@ -6,7 +6,8 @@ import tempfile
 import hashlib
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
-
+from gtts import gTTS
+import io
 # InitialiProcessandoze OpenAI client
 client = OpenAI()
 
@@ -34,19 +35,30 @@ def get_chatgpt_response(prompt: str) -> str:
 def generate_audio_file(text: str) -> str:
     """Generate audio file from text using OpenAI TTS"""
     try:
-        response = client.audio.speech.create(
-            model="tts-1",
-            voice="nova",
-            input=text
-        )
+        # response = client.audio.speech.create(
+        #     model="tts-1",
+        #     voice="nova",
+        #     input=text
+        # )
         
+        # with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as fp:
+        #     temp_filename = fp.name
+                
+        # Convert text to speech    
+        tts = gTTS(text=text, lang='en')
+        # file_hash = hashlib.md5(text.encode()).hexdigest()
+        # temp_filename = f"temp/temp_{file_hash}.mp3"
+        # tts.save(temp_filename)
+        audio_bytes = io.BytesIO()
+        tts.write_to_fp(audio_bytes)  # Save the audio directly to BytesIO
+        audio_bytes.seek(0)  # Seek to the beginning of the BytesIO
         # Create temporary file with hash-based name
-        file_hash = hashlib.md5(text.encode()).hexdigest()
-        temp_filename = f"temp/temp_{file_hash}.mp3"
         
+        
+
         # Stream to file
-        response.stream_to_file(temp_filename)
-        return temp_filename
+        # response.stream_to_file(temp_filename)
+        return audio_bytes
         
     except Exception as e:
         print(f"Error generating audio: {str(e)}")
