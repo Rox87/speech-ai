@@ -1,9 +1,5 @@
 from openai import OpenAI
 import pygame
-import time
-import os
-import tempfile
-import hashlib
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from gtts import gTTS

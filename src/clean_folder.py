@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 
 def clean_folder(folder_path: str):

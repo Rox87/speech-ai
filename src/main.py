@@ -1,5 +1,4 @@
 import sounddevice as sd
-import soundfile as sf
 from openai import OpenAI
 from chatgpt_speech import chat_and_speak
 from clean_folder import clean_folder
