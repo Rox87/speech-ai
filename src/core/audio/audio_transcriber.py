@@ -1,7 +1,13 @@
 from faster_whisper import WhisperModel
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
 
-client = OpenAI()
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize OpenAI client with API key from environment
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Carregar modelo médio (balance entre velocidade e precisão)
 model = WhisperModel("tiny.en", device="cpu", compute_type="int8")

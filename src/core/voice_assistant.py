@@ -1,8 +1,68 @@
 import sounddevice as sd
 from openai import OpenAI
-from chatgpt_speech import chat_and_speak
-from clean_folder import clean_folder
-from transcribe_audio import local_transcribe_audio
+from openai import OpenAI
+from core.audio.audio_transcriber import local_transcribe_audio
+from core.tts.synthesizer import synthesize_with_openai
+from dotenv import load_dotenv
+import pygame
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Initialize pygame for audio playback
+pygame.mixer.init()
+
+# Initialize OpenAI client with API key from environment
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+# Chat history
+history = [
+    {"role": "system", "content": "You are a helpful voice assistant."}
+]
+
+def chat_and_speak(prompt: str):
+    """Get ChatGPT response and convert it to speech"""
+    try:
+        # Add user message to history
+        history.append({"role": "user", "content": prompt})
+        
+        # Get response from ChatGPT
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=history
+        )
+        response_text = response.choices[0].message.content
+        
+        # Add assistant response to history
+        history.append({"role": "assistant", "content": response_text})
+        
+        # Generate speech from response
+        output_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "temp", "response.mp3")
+        os.makedirs(os.path.dirname(output_file), mode=0o755, exist_ok=True)
+        if synthesize_with_openai(response_text, output_file):
+            try:
+                # Set file permissions for response.mp3
+                os.chmod(output_file, 0o755)
+                # Play the audio
+                pygame.mixer.music.load(output_file)
+                pygame.mixer.music.play()
+                while pygame.mixer.music.get_busy():
+                    pygame.time.Clock().tick(10)
+                # Unload and stop the music to release the file
+                pygame.mixer.music.stop()
+                pygame.mixer.music.unload()
+                return response_text
+            except Exception as audio_error:
+                print(f"Error playing audio: {str(audio_error)}")
+                return response_text
+            finally:
+                # Ensure pygame mixer is properly reset
+                pygame.mixer.quit()
+                pygame.mixer.init()
+    except Exception as e:
+        print(f"Error in chat_and_speak: {str(e)}")
+        return str(e)
 import io
 import wave
 
@@ -55,30 +115,20 @@ def record_audio_to_bytes(duration=5, samplerate=44100, channels=1):
 
 
 def listen_and_respond():
-    print("Voice assistant started. Say 'exit' to quit.")
+    print("Voice assistant started. Say 'bye' to quit.")
+    
+    # Ensure temp directory exists
+    import os
+    os.makedirs("temp", exist_ok=True)
     
     while True:
-        
-  # Remove the file
         try:
-            # Create temporary file for recording
-            # with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_audio:
-            #     temp_filename = temp_audio.name
-
-                # Record audio from microphone
-                  # Record for 5 seconds
-                
+            # Record audio from microphone
             # Transcribe the audio
             user_input = ""
-            i=1
             for segment in local_transcribe_audio(record_audio_to_bytes()):
                 user_input += segment
-                # Loop through the segments and generate audio for each
             
-            #whisper cpu version
-            # user_input = transcribe_audio(temp_filename)
-            
-            #user_input = audio
             print(f"You said: {user_input}")
             
             # Check for exit command
@@ -86,11 +136,9 @@ def listen_and_respond():
                 print("Exiting voice assistant...")
                 break
                 
-            # Get ChatGPT response
+            # Get ChatGPT response and speak it
             response = chat_and_speak(user_input)
             print(f"Assistant: {response}")
-            
-       
                 
         except KeyboardInterrupt:
             print("\nExiting voice assistant...")

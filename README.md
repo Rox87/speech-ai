@@ -1,113 +1,124 @@
 # Text-to-Speech Solutions
 
-Este repositório contém diferentes implementações para conversão de texto em fala e reprodução de áudio em Python, utilizando diferentes bibliotecas e abordagens.
+Uma solução abrangente em Python contendo várias implementações para conversão de texto em fala e reprodução de áudio, utilizando diferentes bibliotecas e abordagens.
+
+## Estrutura do Projeto
+
+```
+src/
+├── audio_playback/       # Implementações de reprodução de áudio
+│   ├── play_audio_playsound.py
+│   └── play_audio_pygame.py
+├── core/                 # Funcionalidades principais e utilitários
+│   ├── audio/            # Processamento de áudio
+│   ├── tts/              # Módulos de síntese de fala
+│   ├── utils/            # Funções utilitárias
+│   └── voice_assistant.py # Assistente de voz principal
+├── realtime_processing/  # Processamento TTS em tempo real
+│   ├── realtime_gtts.py
+│   ├── realtime_openai.py
+│   └── speech_to_text_realtime.py
+├── text_to_speech/       # Implementações de texto para fala
+│   ├── text_to_speech_gtts.py
+│   ├── text_to_speech_openai.py
+│   └── text_to_speech_openai_realtime.py
+└── main.py               # Ponto de entrada principal
+```
 
 ## Requisitos
 
 - Python 3.x
-- Dependências (instalar via pip):
+- Dependências (instale via pip):
   ```bash
   pip install --no-cache-dir -r requirements.txt
   ```
-- Para usar a API da OpenAI, configure sua chave API no arquivo `.env`:
+- Para recursos OpenAI, configure sua chave de API no arquivo `.env`:
   ```
   OPENAI_API_KEY=sua_chave_aqui
   ```
 
+## Dependências Principais
+
+- **openai**: Integração com APIs de IA da OpenAI
+- **pygame**: Reprodução de áudio
+- **gTTS**: Google Text-to-Speech
+- **playsound**: Reprodução simplificada de áudio
+- **sounddevice**: Captura de áudio
+- **python-dotenv**: Gerenciamento de variáveis de ambiente
+
 ## Implementações Disponíveis
 
-### 1. Assistente de Voz (`voice_assistant.py`)
+### 1. Assistente de Voz (src/core/voice_assistant.py)
 - Escuta contínua de comandos de voz
-- Uso do Whisper para reconhecimento de fala
+- Reconhecimento de fala
 - Integração com ChatGPT-4 para geração de respostas
-- Respostas faladas usando OpenAI TTS
-- Comando 'exit' para encerrar o assistente
+- Respostas de voz usando OpenAI TTS
+- Suporte a comandos de saída
 
 **Uso:**
 ```python
-python voice_assistant.py
+python src/main.py
 ```
 
-### 2. ChatGPT-4 + OpenAI TTS (`chatgpt_speech.py`)
-- Integração completa com ChatGPT-4 para geração de respostas
-- Conversão automática da resposta em áudio
-- Uso do Pygame para reprodução de áudio
-- Medição de tempo para ambas operações (geração de texto e fala)
+### 2. OpenAI TTS em Tempo Real (src/realtime_processing/realtime_openai.py)
+- Integração com a API TTS da OpenAI
+- Reprodução de áudio baseada em Pygame
+- Medição do tempo de execução
+- Gerenciamento de arquivos temporários
 
 **Uso:**
 ```python
-from chatgpt_speech import chat_and_speak
-chat_and_speak("Explain quantum computing in simple terms")
+from src.realtime_processing.realtime_openai import speak
+speak("Olá, como você está?")
 ```
 
-### 2. OpenAI TTS + Pygame Player (`realtime_openai.py`)
-- Usa a API da OpenAI para conversão de texto em fala
-- Utiliza Pygame para reprodução de áudio
-- Inclui medição de tempo de execução
-- Gera arquivo temporário `output.mp3`
+### 3. Google TTS em Tempo Real (src/realtime_processing/realtime_gtts.py)
+- Integração com Google Text-to-Speech
+- Reprodução de áudio baseada em Playsound
+- Limpeza automática de arquivos temporários
+- Medição de desempenho
 
 **Uso:**
 ```python
-from realtime_openai import speak
-speak("Hello, how are you?")
+from src.realtime_processing.realtime_gtts import speak
+speak("Olá, como você está?")
 ```
 
-### 2. Google TTS + Playsound (`realtime_gtts.py`)
-- Usa a biblioteca gTTS para conversão de texto em fala
-- Utiliza playsound para reprodução de áudio
-- Cria arquivos temporários que são automaticamente removidos
-- Inclui medição de tempo de execução
-
-**Uso:**
-```python
-from realtime_gtts import speak
-speak("Hello, how are you?")
-```
-
-### 3. OpenAI TTS Básico (`audio.speechtotext.openai.py`)
-- Implementação básica usando API da OpenAI
-- Gera arquivo `output.mp3`
-
-**Uso:**
-```python
-python audio.speechtotext.openai.py
-```
-
-### 4. Pygame Player (`audio.play.pygame.py`)
-- Implementação básica de player de áudio usando Pygame
-- Reproduz arquivo `output.mp3`
-
-**Uso:**
-```python
-python audio.play.pygame.py
-```
-
-### 5. Playsound Player (`audio.play.playsound.py`)
-- Implementação básica de player de áudio usando playsound
-- Reproduz arquivo `output.mp3`
-
-**Uso:**
-```python
-python audio.play.playsound.py
-```
+### 4. Opções de Reprodução de Áudio
+- Player Pygame (src/audio_playback/play_audio_pygame.py)
+- Player Playsound (src/audio_playback/play_audio_playsound.py)
 
 ## Comparação de Soluções
 
-| Característica           | OpenAI + Pygame | Google TTS + Playsound |
-|--------------------------|-----------------|------------------------|
-| Qualidade de voz         | Alta            | Média                  |
-| Requer API Key           | Sim             | Não                    |
-| Gerenciamento de arquivos| Manual          | Automático             |
-| Dependências             | OpenAI, Pygame  | gTTS, playsound        |
-| Velocidade               | Mais lento      | Mais rápido            |
+| Recurso               | OpenAI TTS          | Google TTS           |
+|-----------------------|--------------------|--------------------|
+| Qualidade de Voz      | Alta               | Média               |
+| Chave de API Necessária| Sim                | Não                 |
+| Gerenciamento de Arquivos| Manual           | Automático          |
+| Dependências          | OpenAI, Pygame     | gTTS, playsound     |
+| Velocidade de Processamento| Mais lenta     | Mais rápida         |
+| Suporte a Idiomas     | Limitado           | Extensivo           |
 
 ## Melhorias Futuras
 
-- Adicionar suporte a múltiplos idiomas
-- Implementar fila de reprodução
-- Adicionar interface gráfica
-- Implementar controle de volume
-- Adicionar suporte a streaming
+- [ ] Expansão do suporte a múltiplos idiomas
+- [ ] Implementação de fila de reprodução de áudio
+- [ ] Interface gráfica de usuário
+- [ ] Integração de controle de volume
+- [ ] Suporte a streaming de áudio
+- [ ] Integrações com motores TTS adicionais
+- [ ] Melhor tratamento de erros e recuperação
+- [ ] Sistema de gerenciamento de configurações
+- [ ] Suporte a vozes personalizadas
+- [ ] Otimização de desempenho para dispositivos de baixo poder computacional
+
+## Como Contribuir
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Crie um novo Pull Request
 
 ## Licença
 

@@ -1,12 +1,22 @@
 import sounddevice as sd
 from openai import OpenAI
-from chatgpt_speech import chat_and_speak
-from clean_folder import clean_folder
-from transcribe_audio import local_transcribe_audio
+from core.tts.synthesizer import synthesize_with_openai
+from core.voice_assistant import chat_and_speak, listen_and_respond
+from core.audio.audio_transcriber import local_transcribe_audio
+from dotenv import load_dotenv
 import io
 import wave
+import os
 
-client = OpenAI()
+# Load environment variables from .env file
+load_dotenv()
+
+# Ensure temp directory exists with absolute path
+temp_dir = os.path.join(os.path.dirname(__file__), "..", "temp")
+os.makedirs(temp_dir, exist_ok=True)
+
+# Initialize OpenAI client with API key from environment
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 def audio_stream_generator(duration=5, samplerate=44100, channels=1):
     while True:
@@ -100,5 +110,4 @@ def listen_and_respond():
             
 
 if __name__ == "__main__":
-    clean_folder("temp")
     listen_and_respond()
