@@ -7,7 +7,7 @@ Este repositório contém diferentes implementações para conversão de texto e
 - Python 3.x
 - Dependências (instalar via pip):
   ```bash
-  pip install openai pygame gtts playsound
+  pip install --no-cache-dir -r requirements.txt
   ```
 - Para usar a API da OpenAI, configure sua chave API no arquivo `.env`:
   ```
